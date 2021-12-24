@@ -4,25 +4,27 @@ import asyncio
 import uuid
 import random
 
+from tornado import ioloop
+
 from .snake import Snake
 
 class Game:
-    _TICK_DURATION = 0.06
+    _TICK_DURATION = 0.1
 
     def __init__(self, server, area_size=(125, 125)):
         self._server = server
         self._area_size = area_size
         self._snakes = {}
         self._food_pos = None
+        self._loop = ioloop.IOLoop.current()
 
     def start(self):
         threading.Thread(target=self._tick).start()
 
     def _tick(self):
-        asyncio.set_event_loop(asyncio.new_event_loop())
         previous_tick = time.time() - Game._TICK_DURATION
         while True:
-            self._on_tick()
+            self._loop.add_callback(self._on_tick)
             now = time.time()
             since_tick = now - previous_tick
             previous_tick = now
