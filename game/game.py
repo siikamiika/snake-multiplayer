@@ -22,13 +22,9 @@ class Game:
         threading.Thread(target=self._tick).start()
 
     def _tick(self):
-        previous_tick = time.time() - Game._TICK_DURATION
         while True:
             self._loop.add_callback(self._on_tick)
-            now = time.time()
-            since_tick = now - previous_tick
-            previous_tick = now
-            time.sleep(max(self._TICK_DURATION * 2 - since_tick, 0))
+            time.sleep(self._TICK_DURATION)
 
     def _iter_live_snakes(self):
         for snake in self._snakes.values():
