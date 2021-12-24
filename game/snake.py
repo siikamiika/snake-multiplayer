@@ -138,7 +138,8 @@ def test():
         lambda s: s.steer('up'),
         lambda s: s.tick(),
         lambda s: s.steer('right'),
-        *[lambda s: s.tick() for _ in range(11)],
+        lambda s: s.eat(1),
+        *[lambda s: s.tick() for _ in range(20)],
         lambda s: print(s._contains_point((-1, -1))),
     ]
     for o in operations:

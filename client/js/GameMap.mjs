@@ -3,10 +3,15 @@ export default class GameMap {
         this._element = document.querySelector('#map');
     }
 
-    draw(snakes) {
+    draw(data) {
         const ctx = this._element.getContext('2d');
         ctx.clearRect(0, 0, 500, 500);
         ctx.lineWidth = 5;
+        this._drawSnakes(data.snakes, ctx);
+        this._drawFood(data.food_pos, ctx);
+    }
+
+    _drawSnakes(snakes, ctx) {
         for (const snake of snakes) {
             let x_ = null;
             let y_ = null;
@@ -22,5 +27,12 @@ export default class GameMap {
                 [x_, y_] = [x, y];
             }
         }
+    }
+
+    _drawFood(foodPos, ctx) {
+        const circle = new Path2D();
+        const [x, y] = foodPos;
+        circle.arc(x * 4, y * 4, 5, 0, 2 * Math.PI);
+        ctx.fill(circle);
     }
 }

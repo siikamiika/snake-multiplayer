@@ -7,11 +7,13 @@ import random
 from .snake import Snake
 
 class Game:
-    _TICK_DURATION = 0.1
+    _TICK_DURATION = 0.06
 
-    def __init__(self, server):
+    def __init__(self, server, area_size=(125, 125)):
         self._server = server
+        self._area_size = area_size
         self._snakes = {}
+        self._food_pos = None
 
     def start(self):
         threading.Thread(target=self._tick).start()
@@ -36,16 +38,24 @@ class Game:
         snakes = [*self._iter_live_snakes()]
         for snake in snakes:
             snake.tick()
+            if snake.get_head() == self._food_pos:
+                snake.eat(10)
+                self._food_pos = None
         for snake in snakes:
             for snake2 in snakes:
                 if snake2.intersects_with_snake(snake):
                     snake.kill()
-
+        if self._food_pos is None:
+            self._food_pos = (
+                random.randint(0, self._area_size[0]),
+                random.randint(0, self._area_size[1]),
+            )
         self._server.broadcast({
             'type': 'message',
             'name': 'game_state_update',
             'data': {
-                'snakes': [s.serialize() for s in self._snakes.values()],
+                'snakes': [s.serialize() for s in self._snakes.values() if s.is_alive()],
+                'food_pos': self._food_pos,
             }
         })
 
@@ -58,7 +68,13 @@ class Game:
     def _handle_command(self, client, name, data, snake_id):
         if name == 'register':
             snake_id = uuid.uuid4().hex
-            self._snakes[snake_id] = Snake(snake_id, (125, random.randint(0, 125)))
+            self._snakes[snake_id] = Snake(
+                snake_id,
+                (
+                    self._area_size[0],
+                    random.randint(0, self._area_size[1])
+                )
+            )
             client.write_message(self._generate_message('registered', {'id': snake_id}))
         elif name == 'input':
             if snake_id in self._snakes:

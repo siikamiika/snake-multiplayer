@@ -4,7 +4,6 @@ import Input from '/js/Input.mjs';
 export default class Game {
     constructor() {
         this._socket = null;
-        this._state = null;
         this._map = null;
         this._input = null;
         this._snakeId = null;
@@ -64,7 +63,6 @@ export default class Game {
     }
 
     _onGameStateUpdate(data) {
-        this._state = data;
-        this._map.draw(this._state.snakes);
+        this._map.draw(data);
     }
 }
